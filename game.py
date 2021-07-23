@@ -24,6 +24,12 @@ class Game:
         self.test_surface = pg.Surface((100, 200))
         self.test_surface.fill((0, 0, 255))
 
+
+        self.x = 0
+        self.y = 0
+        self.pos = Vector2(self.x, self.y)
+        self.cell_rect = pg.Rect(self.pos.x * self.settings.cell_size, self.pos.y * self.settings.cell_size, self.settings.cell_size, self.settings.cell_size)
+
         pg.time.set_timer(self.settings.delay, 100)
 
 
@@ -54,6 +60,29 @@ class Game:
         for block in self.snake.body[1:]:
             if block == self.snake.body[0]:
                 self.game_over()
+
+    def draw_canvas(self):
+        # draw a pattern on the canvas
+        for i in range(self.settings.cell_number):
+
+            for k in range(self.settings.cell_number):
+
+                # set a new coordinates of a cell
+                self.cell_rect.x = k * self.settings.cell_size
+                self.cell_rect.y = i * self.settings.cell_size
+
+                if i % 2 == 0:
+                    if k % 2 == 0:
+                        rgb = (162, 209, 73)
+                    else:
+                        rgb = (175, 215, 70)
+                else:
+                    if k % 2 == 0:
+                        rgb = (175, 215, 70)
+                    else:
+                        rgb = (162, 209, 73)
+
+                pg.draw.rect(self.screen, rgb, self.cell_rect)
 
 
 
@@ -88,8 +117,8 @@ class Game:
                     self.check_collision()
 
 
+            self.draw_canvas()
 
-            self.screen.fill((175, 215, 70))
             self.apple.draw_apple()
 
             self.snake.draw_snake()
