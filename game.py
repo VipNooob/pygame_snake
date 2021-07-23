@@ -13,7 +13,7 @@ class Game:
 
     def __init__(self):
         self.settings = Settings()
-        self.screen = pg.display.set_mode((self.settings.cell_number * self.settings.cell_size, self.settings.cell_number * self.settings.cell_size))
+        self.screen = pg.display.set_mode((self.settings.cell_column_number * self.settings.cell_size, self.settings.cell_row_number * self.settings.cell_size))
         self.screen_rect = self.screen.get_rect()
         self.clock = pg.time.Clock()
 
@@ -47,12 +47,12 @@ class Game:
         2. snake parts
         """
         # left-right condition
-        if self.snake.body[0].x < 0 or self.snake.body[0].x >= self.settings.cell_number:
+        if self.snake.body[0].x < 1 or self.snake.body[0].x >= self.settings.cell_column_number - 1:
             pg.quit()
             self.game_over()
 
         #top-bottom condition
-        if self.snake.body[0].y < 0 or self.snake.body[0].y >= self.settings.cell_number:
+        if self.snake.body[0].y < 3 or self.snake.body[0].y >= self.settings.cell_row_number -1:
             pg.quit()
             self.game_over()
 
@@ -61,15 +61,51 @@ class Game:
             if block == self.snake.body[0]:
                 self.game_over()
 
-    def draw_canvas(self):
-        # draw a pattern on the canvas
-        for i in range(self.settings.cell_number):
 
-            for k in range(self.settings.cell_number):
+
+
+    def _draw_external_canvas(self):
+        """
+        draw a place for the current score and max score
+        draw game borders
+        """
+        info_part = pg.Rect(0, 0, self.settings.cell_size * self.settings.cell_column_number,
+                            self.settings.cell_size * 2)
+        pg.draw.rect(self.screen, (74, 117, 44), info_part)
+
+        # draw an external square (borders)
+        upper_part = pg.Rect(0, 2 * self.settings.cell_size, self.settings.cell_size * self.settings.cell_column_number,
+                             self.settings.cell_size)
+        pg.draw.rect(self.screen, (87, 138, 52), upper_part)
+
+        lower_part = pg.Rect(0, (self.settings.cell_row_number - 1) * self.settings.cell_size,
+                             self.settings.cell_size * self.settings.cell_column_number, self.settings.cell_size)
+        pg.draw.rect(self.screen, (87, 138, 52), lower_part)
+
+        left_part = pg.Rect(0, 3 * self.settings.cell_size, self.settings.cell_size,
+                            (self.settings.cell_row_number - 4) * self.settings.cell_size)
+        pg.draw.rect(self.screen, (87, 138, 52), left_part)
+
+        right_part = pg.Rect((self.settings.cell_column_number - 1) * self.settings.cell_size,
+                             3 * self.settings.cell_size, self.settings.cell_size,
+                             (self.settings.cell_row_number - 4) * self.settings.cell_size)
+        pg.draw.rect(self.screen, (87, 138, 52), right_part)
+
+
+    def draw_canvas(self):
+        self._draw_external_canvas()
+
+        # draw a pattern on the canvas
+        for i in range(3, self.settings.cell_row_number - 1):
+
+            for k in range(1, self.settings.cell_column_number - 1):
 
                 # set a new coordinates of a cell
                 self.cell_rect.x = k * self.settings.cell_size
                 self.cell_rect.y = i * self.settings.cell_size
+
+
+
 
                 if i % 2 == 0:
                     if k % 2 == 0:
