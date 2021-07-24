@@ -39,6 +39,9 @@ class Game:
             self.apple.new_pos()
             self.snake.add_block()
 
+            self.settings.score += 1
+            self.store_record()
+
 
     def check_fail(self):
         """
@@ -60,6 +63,7 @@ class Game:
         for block in self.snake.body[1:]:
             if block == self.snake.body[0]:
                 self.game_over()
+
 
 
 
@@ -105,8 +109,6 @@ class Game:
                 self.cell_rect.y = i * self.settings.cell_size
 
 
-
-
                 if i % 2 == 0:
                     if k % 2 == 0:
                         rgb = (162, 209, 73)
@@ -121,6 +123,57 @@ class Game:
                 pg.draw.rect(self.screen, rgb, self.cell_rect)
 
 
+
+    def draw_score(self):
+        """draw the quantity of eaten apples"""
+        self.eaten_apple = pg.image.load('images/apple.png')
+        self.eaten_apple_rect = self.eaten_apple.get_rect()
+
+        self.eaten_apple_rect.x = self.settings.cell_size * 1.5
+        self.eaten_apple_rect.y = self.settings.cell_size * 0.5
+
+
+
+        self.text_score = pg.font.SysFont("arial", 40)
+        self.score_surface = self.text_score.render(str(self.settings.score), True, (255, 255, 255))
+        self.score_surface_rect = self.score_surface.get_rect()
+        self.score_surface_rect.centery = self.eaten_apple_rect.centery
+        self.score_surface_rect.centerx = self.eaten_apple_rect.centerx + 40
+
+        self.screen.blit(self.eaten_apple, self.eaten_apple_rect)
+        self.screen.blit(self.score_surface, self.score_surface_rect)
+
+
+    def draw_record(self):
+        self.record_image = pg.image.load('images/cup.png')
+        self.record_image = pg.transform.scale(self.record_image, (40, 40))
+        self.record_image.set_colorkey((255, 255, 255))
+        self.record_image_rect = self.record_image.get_rect()
+
+        self.record_image_rect.centery = self.score_surface_rect.centery
+        self.record_image_rect.left = self.score_surface_rect.right + 70
+
+
+
+
+        self.text_record = pg.font.SysFont("arial", 40)
+        self.text_record_surface = self.text_score.render(str(self.settings.record), True, (255, 255, 255))
+        self.text_record_surface_rect = self.text_record_surface.get_rect()
+
+        self.text_record_surface_rect.centery = self.record_image_rect.centery
+        self.text_record_surface_rect.centerx = self.record_image_rect.centerx + 40
+
+        self.screen.blit(self.record_image, self.record_image_rect)
+        self.screen.blit(self.text_record_surface, self.text_record_surface_rect)
+
+
+
+    def store_record(self):
+
+        if self.settings.score > int(self.settings.record):
+            with open('record_score.txt', 'w') as file:
+                file.write(str(self.settings.score))
+            self.settings.record = self.settings.score
 
     def start_game(self):
         """run the game"""
@@ -154,6 +207,8 @@ class Game:
 
 
             self.draw_canvas()
+            self.draw_score()
+            self.draw_record()
 
             self.apple.draw_apple()
 

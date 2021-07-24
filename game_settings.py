@@ -10,3 +10,8 @@ class Settings():
 
 
         self.delay = pg.USEREVENT
+
+        self.score = 0
+
+        with open('record_score.txt', 'r') as file:
+            self.record = file.read()
