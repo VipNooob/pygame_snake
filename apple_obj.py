@@ -16,6 +16,16 @@ class Apple():
         # pg.draw.rect(self.game.screen, (255, 0, 0), apple_rect)
 
     def new_pos(self):
-        self.x = randint(1, self.game.settings.cell_column_number - 2)
-        self.y = randint(3, self.game.settings.cell_row_number - 2)
+        while True:
+            counter = 0
+            self.x = randint(1, self.game.settings.cell_column_number - 2)
+            self.y = randint(3, self.game.settings.cell_row_number - 2)
+            for part in self.game.snake.body:
+                if self.x == part.x and self.y == part.y:
+                    counter += 1
+                    break
+            if counter == 0:
+                break
+
+
         self.pos = Vector2(self.x, self.y)

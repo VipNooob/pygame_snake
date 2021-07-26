@@ -18,8 +18,9 @@ class Game:
         self.clock = pg.time.Clock()
 
 
-        self.apple = Apple(self)
         self.snake = Snake(self)
+        self.apple = Apple(self)
+
 
         self.test_surface = pg.Surface((100, 200))
         self.test_surface.fill((0, 0, 255))
@@ -31,6 +32,40 @@ class Game:
         self.cell_rect = pg.Rect(self.pos.x * self.settings.cell_size, self.pos.y * self.settings.cell_size, self.settings.cell_size, self.settings.cell_size)
 
         pg.time.set_timer(self.settings.delay, 100)
+
+
+
+    def print_gameover(self):
+        """
+        print:
+            Game over
+            Score ...
+            RESTART!
+        """
+        self.text_first_line = self.settings.pixel_font_1.render('Game Over', True, (0, 0, 0))
+        self.text_first_line_rect = self.text_first_line.get_rect()
+        self.text_first_line_rect.centerx = self.screen_rect.centerx
+        self.text_first_line_rect.top = self.settings.cell_size * 8
+
+
+        self.text_second_line = self.settings.pixel_font_2.render(f'Score:  {self.settings.score}', True, (0, 0, 0))
+        self.text_second_line_rect = self.text_second_line.get_rect()
+        self.text_second_line_rect.centerx = self.screen_rect.centerx
+        self.text_second_line_rect.top = self.settings.cell_size * 11.5
+
+
+
+        self.text_third_line = self.settings.pixel_font_3.render('RESTART!', True, (0, 0, 0))
+        self.text_third_line_rect = self.text_third_line.get_rect()
+        self.text_third_line_rect.centerx = self.screen_rect.centerx
+        self.text_third_line_rect.top = self.settings.cell_size * 15
+
+
+
+        self.screen.blit(self.text_first_line, self.text_first_line_rect)
+        self.screen.blit(self.text_second_line, self.text_second_line_rect)
+        self.screen.blit(self.text_third_line, self.text_third_line_rect)
+
 
 
     def check_collision(self):
@@ -51,18 +86,16 @@ class Game:
         """
         # left-right condition
         if self.snake.body[0].x < 1 or self.snake.body[0].x >= self.settings.cell_column_number - 1:
-            pg.quit()
-            self.game_over()
+            self.settings.game_condition = False
 
         #top-bottom condition
         if self.snake.body[0].y < 3 or self.snake.body[0].y >= self.settings.cell_row_number -1:
-            pg.quit()
-            self.game_over()
+            self.settings.game_condition = False
 
 
         for block in self.snake.body[1:]:
             if block == self.snake.body[0]:
-                self.game_over()
+                self.settings.game_condition = False
 
 
 
@@ -175,9 +208,22 @@ class Game:
                 file.write(str(self.settings.score))
             self.settings.record = self.settings.score
 
+
+    def restart_game(self):
+        """set all necessary options in the initial state"""
+        self.settings.score = 0
+        self.settings.game_condition = True
+
+        self.snake.body = [Vector2(7, 10), Vector2(6, 10), Vector2(5, 10)]
+        self.snake. direction = Vector2(1, 0)
+
+        self.apple.new_pos()
+
+
     def start_game(self):
         """run the game"""
         while True:
+
             for event in pg.event.get():
 
                 if event.type == pg.KEYDOWN:
@@ -185,18 +231,23 @@ class Game:
                         if self.snake.direction.y != 1:
                             self.snake.direction = Vector2(0, -1)
 
-                    if event.key == pg.K_DOWN:
+                    elif event.key == pg.K_DOWN:
                         if self.snake.direction.y != -1:
                             self.snake.direction = Vector2(0, 1)
 
-                    if event.key == pg.K_RIGHT:
+                    elif event.key == pg.K_RIGHT:
                         if self.snake.direction.x != -1:
                             self.snake.direction = Vector2(1, 0)
 
-                    if event.key == pg.K_LEFT:
+                    elif event.key == pg.K_LEFT:
                         if self.snake.direction.x != 1:
                             self.snake.direction = Vector2(-1, 0)
 
+                if event.type == pg.MOUSEBUTTONDOWN and not self.settings.game_condition:
+                    self.m_pos = pg.mouse.get_pos()
+
+                    if self.text_third_line_rect.collidepoint(self.m_pos):
+                        self.restart_game()
 
                 if event.type == pg.QUIT:
                     sys.exit()
@@ -210,12 +261,23 @@ class Game:
             self.draw_score()
             self.draw_record()
 
-            self.apple.draw_apple()
+            if self.settings.game_condition:
+                self.apple.draw_apple()
 
-            self.snake.draw_snake()
-            self.check_fail()
+                self.snake.draw_snake()
+                self.check_fail()
+                if self.settings.score == 361:
+                    ###############
+                    print('Win')
+
+            else:
+                pg.mouse.set_visible(True)
+                self.print_gameover()
+
             pg.display.update()
             self.clock.tick(60)
+
+
 
 
     def game_over(self):

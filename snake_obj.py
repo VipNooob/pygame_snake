@@ -6,8 +6,8 @@ class Snake():
     """creates a snake object"""
     def __init__(self, game):
         self.game = game
-        self.body = [Vector2(5, 10), Vector2(6, 10), Vector2(7, 10)]
-        self.direction = Vector2(-1, 0)
+        self.body = [Vector2(7, 10), Vector2(6, 10), Vector2(5, 10)]
+        self.direction = Vector2(1, 0)
         self.new_block = False
 
 
@@ -51,7 +51,6 @@ class Snake():
         """looping over the list of the coordinates and draw rectangles"""
 
         for index, block in enumerate(self.body):
-            print(len(self.body))
             x_pos = block.x * self.game.settings.cell_size
             y_pos = block.y * self.game.settings.cell_size
             block_rect = pg.Rect(x_pos, y_pos, self.game.settings.cell_size, self.game.settings.cell_size)
