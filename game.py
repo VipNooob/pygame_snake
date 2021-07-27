@@ -1,4 +1,5 @@
 import sys
+import time
 import pygame as pg
 from game_settings import Settings
 from apple_obj import Apple
@@ -68,6 +69,36 @@ class Game:
 
 
 
+
+    def win_game(self):
+
+        self.text_winner_line = self.settings.pixel_font_winner.render('You won the game!', True, (0, 0, 0))
+        self.text_winner_line_rect = self.text_winner_line.get_rect()
+        self.text_winner_line_rect.centerx = self.screen_rect.centerx
+        self.text_winner_line_rect.centery = self.screen_rect.centerx
+
+
+        self.text_third_line = self.settings.pixel_font_3.render('RESTART!', True, (0, 0, 0))
+        self.text_third_line_rect = self.text_third_line.get_rect()
+        self.text_third_line_rect.centerx = self.screen_rect.centerx
+        self.text_third_line_rect.top = self.settings.cell_size * 15
+
+        self.screen.blit(self.text_winner_line, self.text_winner_line_rect)
+        self.screen.blit(self.text_third_line, self.text_third_line_rect)
+
+
+
+    def draw_start_screen(self):
+
+        self.text_first_line = self.settings.pixel_font_1.render('START', True, (0, 0, 0))
+        self.text_first_line_rect = self.text_first_line.get_rect()
+        self.text_first_line_rect.centerx = self.screen_rect.centerx
+        self.text_first_line_rect.centery = self.screen_rect.centery
+
+        self.screen.fill(color=(0, 255, 0))
+        self.screen.blit(self.text_first_line, self.text_first_line_rect)
+
+
     def check_collision(self):
         """check the collision between a snake head and an apple"""
         if self.apple.pos == self.snake.body[0]:
@@ -86,15 +117,19 @@ class Game:
         """
         # left-right condition
         if self.snake.body[0].x < 1 or self.snake.body[0].x >= self.settings.cell_column_number - 1:
+            time.sleep(0.2)
             self.settings.game_condition = False
+
 
         #top-bottom condition
         if self.snake.body[0].y < 3 or self.snake.body[0].y >= self.settings.cell_row_number -1:
+            time.sleep(0.2)
             self.settings.game_condition = False
 
 
         for block in self.snake.body[1:]:
             if block == self.snake.body[0]:
+                time.sleep(0.2)
                 self.settings.game_condition = False
 
 
@@ -243,36 +278,54 @@ class Game:
                         if self.snake.direction.x != 1:
                             self.snake.direction = Vector2(-1, 0)
 
-                if event.type == pg.MOUSEBUTTONDOWN and not self.settings.game_condition:
+                if event.type == pg.MOUSEBUTTONDOWN:
                     self.m_pos = pg.mouse.get_pos()
 
-                    if self.text_third_line_rect.collidepoint(self.m_pos):
-                        self.restart_game()
+                    if not self.settings.game_condition:
+
+                        if self.text_third_line_rect.collidepoint(self.m_pos):
+                            self.restart_game()
+
+                    if not self.settings.start_condition:
+
+                        if self.text_first_line_rect.collidepoint(self.m_pos):
+                            self.settings.start_condition = True
+
+
 
                 if event.type == pg.QUIT:
                     sys.exit()
 
                 if event.type == self.settings.delay:
-                    self.snake.move_snake()
-                    self.check_collision()
+                    if self.settings.start_condition:
+                        self.snake.move_snake()
+                        self.check_collision()
 
 
             self.draw_canvas()
             self.draw_score()
             self.draw_record()
 
-            if self.settings.game_condition:
-                self.apple.draw_apple()
+            if self.settings.game_condition and self.settings.start_condition:
 
+                pg.mouse.set_visible(False)
+                self.apple.draw_apple()
                 self.snake.draw_snake()
                 self.check_fail()
-                if self.settings.score == 361:
-                    ###############
-                    print('Win')
+                if self.settings.score == 361 - 3:
+                    self.win_game()
+                    self.settings.game_condition = False
+                    self.settings.win_condition = True
+
+            elif self.settings.game_condition and not self.settings.start_condition:
+                self.draw_start_screen()
 
             else:
                 pg.mouse.set_visible(True)
-                self.print_gameover()
+                if not self.settings.win_condition:
+                    self.print_gameover()
+                else:
+                    self.win_game()
 
             pg.display.update()
             self.clock.tick(60)

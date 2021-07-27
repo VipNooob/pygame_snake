@@ -33,17 +33,23 @@ class Snake():
 
 
     def update_head_images(self, block_rect):
-        if self.direction.x == -1 and self.direction.y == 0:
+
+        self.relation = self.body[1] - self.body[0]
+
+        if self.relation == (1, 0):
             self.game.screen.blit(self.head_left, block_rect)
 
-        if self.direction.x == 1 and self.direction.y == 0:
+        if self.relation == (-1, 0):
             self.game.screen.blit(self.head_right, block_rect)
 
-        if self.direction.x == 0 and self.direction.y == 1:
+        if self.relation == (0, 1):
+            self.game.screen.blit(self.head_up, block_rect)
+
+        if self.relation == (0, -1):
             self.game.screen.blit(self.head_down, block_rect)
 
-        if self.direction.x == 0 and self.direction.y == -1:
-            self.game.screen.blit(self.head_up, block_rect)
+
+
 
 
 
@@ -60,7 +66,8 @@ class Snake():
 
 
 
-            elif index == len(self.body) - 1:
+
+            if index == len(self.body) - 1:
                 pre_tail = self.body[index - 1] - block
 
 
@@ -79,26 +86,30 @@ class Snake():
 
 
             else:
-                previous_block = self.body[index + 1] - block
-                next_block = self.body[index - 1] - block
 
-                if previous_block.x == next_block.x:
-                    self.game.screen.blit(self.body_vertical, block_rect)
-                elif previous_block.y == next_block.y:
-                    self.game.screen.blit(self.body_horizontal, block_rect)
+                if index != 0:
+                 previous_block = self.body[index + 1] - block
+                 next_block = self.body[index - 1] - block
 
-                else:
-                    if (previous_block.x == -1 and next_block.y == -1) or (previous_block.y == -1 and next_block.x == -1):
-                        self.game.screen.blit(self.body_topleft, block_rect)
+                 if previous_block.x == next_block.x:
+                     self.game.screen.blit(self.body_vertical, block_rect)
 
-                    if (previous_block.x == 1 and next_block.y == -1) or (previous_block.y == -1 and next_block.x == 1):
-                        self.game.screen.blit(self.body_topright, block_rect)
+                 elif previous_block.y == next_block.y:
+                     self.game.screen.blit(self.body_horizontal, block_rect)
 
-                    if (previous_block.y == 1 and next_block.x == -1) or (previous_block.x == -1 and next_block.y == 1):
-                        self.game.screen.blit(self.body_bottomleft, block_rect)
+                 else:
+                     if (previous_block.x == -1 and next_block.y == -1) or (previous_block.y == -1 and next_block.x == -1):
+                         self.game.screen.blit(self.body_topleft, block_rect)
 
-                    if (previous_block.y == 1 and next_block.x == 1) or (previous_block.x == 1 and next_block.y == 1):
-                        self.game.screen.blit(self.body_bottomright, block_rect)
+                     if (previous_block.x == 1 and next_block.y == -1) or (previous_block.y == -1 and next_block.x == 1):
+                         self.game.screen.blit(self.body_topright, block_rect)
+
+                     if (previous_block.y == 1 and next_block.x == -1) or (previous_block.x == -1 and next_block.y == 1):
+                         self.game.screen.blit(self.body_bottomleft, block_rect)
+
+                     if (previous_block.y == 1 and next_block.x == 1) or (previous_block.x == 1 and next_block.y == 1):
+                         self.game.screen.blit(self.body_bottomright, block_rect)
+
 
 
 
@@ -116,6 +127,7 @@ class Snake():
         [] [] []
         here we copied the first 3 blocks as you can see and update the coordinates of the first block
         """
+
         if self.new_block:
             body_copy = self.body[:]
             body_copy.insert(0, body_copy[0] + self.direction)
